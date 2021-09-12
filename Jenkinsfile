@@ -2,25 +2,34 @@ pipeline {
 
   agent {label 'slave-node-1'}
 
+  tools {
+    maven 'mvn'
+  }
+
   environment {
-	  GIT_REPO_URL      = 'https://github.com/OneStopDevOps/CapStone-Final-Project.git'
-	  JENKINS_WORKSPACE = 'Project3-CI-CD-Jenkins-Pipeline/inventory-service/target'
+	  GIT_REPO_URL           = 'https://github.com/OneStopDevOps/CapStone-Final-Project.git'
+
+    IMAGE_NAME             = 'onestopdevops/capstone-final-project'
+    DOCKER_COMPOSE_FILE    = 'docker-compose.yml'
+    DOCKERHUB_CREDENTIALS  = 'onestopdevops-docker-hub-user'
+
+    PATH                   = "$PATH:/usr/bin"
   }
 
   stages {
 
-    stage('Stage 1 - Clone docker-jenkins-pipeline') {
+    stage('Stage 1 - Clone CapStone-Final-Project') {
 
       steps {
 
         //sendStartNotification()
 
         echo "Checking out from github repo..."
-        git branch: 'master', url: "${GIT_REPO_URL}"
+        git branch: 'main', url: "${GIT_REPO_URL}"
       }
     }
 
-    /*stage('Stage 2 - Executing unit testing suite') {
+    stage('Stage 2 - Executing unit testing suite') {
 
       // only execute this stage if the previous stages are successful.
       when {
@@ -30,7 +39,7 @@ pipeline {
       }
 
       steps {
-         echo "Executing unit testing for inventory-service ..."
+         echo "Execute unit testing for inventory-service ..."
 
          dir('inventory-service') {
           sh 'pwd'
@@ -39,14 +48,14 @@ pipeline {
 		   
          echo "Publishing junit test results..."
 		 	
-	 junit(
-		allowEmptyResults: true,
-		testResults: 'inventory-service/target/surefire-reports/*.xml'
-	 )
+	      junit(
+		      allowEmptyResults: true,
+		      testResults: 'inventory-service/target/surefire-reports/*.xml'
+	      )
       }
     }
  
-    stage('Stage 3 - Building the inventory-service') {
+    stage('Stage 3 - Build the inventory-service jar') {
 
       // only execute this stage if the previous stages are successful.
       when {
@@ -65,7 +74,44 @@ pipeline {
       }
     }
 
-    stage('Stage 4 - Deploy to tomcat container on AWS EC2...') {
+    stage('Stage 4 - Build the docker image') {
+
+      when {
+        expression {
+          currentBuild.result == null || currentBuild.result == 'SUCCESS'
+        }
+      }
+
+      steps {
+
+        echo "Creating inventory-service image..."
+        sh "export BUILD_VERSION=${BUILD_TAG}&& docker-compose build"
+      }
+    }
+
+    stage('Stage 5 - Publish the docker image to DockerHub') {
+
+      when {
+        expression {
+          currentBuild.result == null || currentBuild.result == 'SUCCESS'
+        }
+      }
+
+      steps {
+
+        script {
+          echo "Uploading docker image to DockerHub"
+          docker.withRegistry('', "${DOCKERHUB_CREDENTIALS}") {
+          
+            //push image
+            sh "export BUILD_VERSION=${BUILD_TAG}&& docker-compose -f ${env.DOCKER_COMPOSE_FILE} push"
+            echo "Image pushed."
+          }
+        }
+      }
+    }
+
+    /*stage('Stage 4 - Deploy to tomcat container on AWS EC2...') {
       
       // only execute this stage if the previous stages are successful.
       when {

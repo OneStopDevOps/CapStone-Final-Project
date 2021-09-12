@@ -16,4 +16,10 @@
   hosts: masters
   become: yes
   roles:
-    - maven
+    - git
+
+- name: Install docker.io
+  hosts: "masters, slaves, prods"
+  become: yes
+  roles:
+    - docker
