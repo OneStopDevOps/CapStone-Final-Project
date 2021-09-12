@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.3"
 
 services:
 
@@ -6,7 +6,7 @@ services:
   # Inventory-service returns a simple REST call to get inventory 
   ###############################################################
   inventory-service:
-    image: onestopdevops/project1-docker-jenkins-pipeline:${BUILD_VERSION:-latest}
+    image: onestopdevops/capstone-final-project:${BUILD_VERSION:-latest}
     container_name: inventory-service
     build: ./inventory-service
     restart: always
