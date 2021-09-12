@@ -1,0 +1,8 @@
+# Ansible playbook for installing aws-cli
+---
+- name: Aws-cli playbook
+  hosts: cms
+  become: true
+  roles:
+    - name: Install aws-cli
+      role: aws-cli

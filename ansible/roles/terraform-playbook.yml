@@ -1,0 +1,8 @@
+# Ansible playbook for installing terraform
+---
+- name: Terraform playbook 
+  hosts: cms
+  become: true
+  roles:
+    - name: Install terraform
+      role: terraform

@@ -1,0 +1,19 @@
+# Ansible playbook for installing java
+---
+- name: Install Java openJDK
+  hosts: "masters, slaves, prods"
+  become: yes
+  roles:
+    - jdk
+
+- name: Install maven
+  hosts: "masters, slaves"
+  become: yes
+  roles:
+    - maven
+
+- name: Install git
+  hosts: masters
+  become: yes
+  roles:
+    - maven

@@ -1,0 +1,24 @@
+# Install jenkins and its dependencies
+
+- name: Add jenkins APT key
+  apt_key:
+    url: https://pkg.jenkins.io/debian/jenkins.io.key
+    state: present
+
+- name: Add jenkins APT to repository
+  shell: "echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list"
+
+- name: Install jenkins
+  apt:
+    name: jenkins
+    update_cache: yes
+    state: present
+
+- name: Check jenkins status
+  shell: service jenkins status
+  register: jenkins_status
+  ignore_errors: yes
+
+- name: Display jenkins status
+  debug:
+    var: jenkins_status

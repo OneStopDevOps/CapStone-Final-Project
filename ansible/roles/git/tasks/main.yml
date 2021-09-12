@@ -1,0 +1,11 @@
+# Install GIT
+- name: Install GIT
+  apt:
+    name: git-core
+    update_cache: yes
+    state: present
+  register: git_version
+
+- name: Display GIT version
+  debug:
+    var: git_version

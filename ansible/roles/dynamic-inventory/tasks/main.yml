@@ -1,0 +1,60 @@
+# Dynamic Inventory Configuration
+#    - Python3 should be installed along with Ansible
+---
+- name: Install pip
+  shell: |
+    sudo apt-get update && sudo apt-get install python3-pip -y
+
+- name: Install boto3
+  apt:
+    name: python-boto3
+    state: present
+    update_cache: yes
+
+# Create inventory directory under /opt/ansible
+
+- name: Create inventory directory under /opt/ansible
+  become: yes
+  file:
+    path: /opt/ansible/inventory
+    recurse: yes
+    state: directory
+    owner: "{{ ec2_user }}"
+    group: "{{ ec2_user }}"
+    mode: 0755
+
+- name: Create an aws_ec2.yml file for retrieving ec2 instance info
+  template:
+    src: templates/aws_ec2.j2
+    dest: /opt/ansible/inventory/aws_ec2.yml
+    owner: "{{ ec2_user }}"
+    group: "{{ ec2_user }}"
+    mode: 0755
+
+- name: Add default inventory in ansible.conf
+  become: yes
+  become_user: root
+  lineinfile:
+    path: /etc/ansible/ansible.cfg
+    insertafter: '^\[defaults\]'
+    line: "inventory = /opt/ansible/inventory/aws_ec2.yml"
+    firstmatch: yes
+    state: present
+
+- name: Add enable ec2 plugin in ansible.conf
+  become: yes
+  become_user: root
+  lineinfile:
+    path: /etc/ansible/ansible.cfg
+    insertafter: '^\[inventory\]'
+    line: "enable_plugins = aws_ec2, ini"
+    firstmatch: yes
+    state: present
+
+- name: Search the dynamic-inventory groups
+  shell: "ansible-inventory --graph"
+  register: di_list
+
+- name: Display the dynamic-inventory groups
+  debug:
+    var: di_list

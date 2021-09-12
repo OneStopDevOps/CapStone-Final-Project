@@ -1,0 +1,8 @@
+# Ansible playbook for installing terraform
+---
+- name: Dynamic Inventory playbook 
+  hosts: cms
+  become: true
+  roles:
+    - name: Setup dynamic inventory
+      role: dynamic-inventory

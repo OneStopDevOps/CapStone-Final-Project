@@ -1,0 +1,8 @@
+# Ansible playbook for installing playbook
+---
+- name: Jenkins playbook
+  hosts: masters
+  become: true
+  roles:
+    - name: Install jenkins
+      role: jenkins

@@ -1,0 +1,17 @@
+# Terraform Configuration
+
+---
+- name: Download and unarchive the Terraform zip file
+  unarchive:
+    src: https://releases.hashicorp.com/terraform/1.0.2/terraform_1.0.2_linux_amd64.zip
+    dest: /usr/bin
+    remote_src: yes
+  tags: [ terraform ]
+
+- name: Check Terraform version
+  shell: "terraform -v"
+  register: version
+      
+- name: Print version 
+  debug:
+    var: version

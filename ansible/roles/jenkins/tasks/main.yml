@@ -1,0 +1,8 @@
+# Ansible role for installing jenkins
+
+- name: Install jenkins and dependencies
+  include: install.yml
+
+- name: Start jenkins
+  become: yes
+  shell: /etc/init.d/jenkins start

@@ -1,0 +1,17 @@
+# AWS CLI Configuration
+
+---
+- name: Download and install the latest AWS CLI
+  apt:
+    name: awscli
+    update_cache: yes
+    state: latest
+  tags: [ awscli ]
+
+- name: Check AWS CLI version
+  shell: "aws --version"
+  register: version
+      
+- name: Print version 
+  debug:
+    var: version
