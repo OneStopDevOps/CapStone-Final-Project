@@ -83,10 +83,10 @@ pipeline {
 			}
 	    }
       } 
-    }
+    }*/
 
   }
-*/
+
   post {
   
     success {
