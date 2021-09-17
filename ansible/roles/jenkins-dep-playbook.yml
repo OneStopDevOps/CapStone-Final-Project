@@ -23,3 +23,11 @@
   become: yes
   roles:
     - docker
+
+- name: Install pass for docker login
+  hosts: masters
+  become: yes
+  apt:
+    name: pass
+    state: present
+    update_cache: yes

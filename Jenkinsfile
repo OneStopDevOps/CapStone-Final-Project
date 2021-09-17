@@ -7,13 +7,11 @@ pipeline {
   }
 
   environment {
-	  GIT_REPO_URL           = 'https://github.com/OneStopDevOps/CapStone-Final-Project.git'
-
+    GIT_REPO_URL           = 'https://github.com/OneStopDevOps/CapStone-Final-Project.git'
     IMAGE_NAME             = 'onestopdevops/capstone-final-project'
     DOCKER_COMPOSE_FILE    = 'docker-compose.yml'
     DOCKERHUB_CREDENTIALS  = 'onestopdevops-docker-hub-user'
-
-    PATH                   = "$PATH:/usr/bin"
+    SSH_COMMAND            = "ssh -X ${EC2_USER}@${EC2_ADDRESS}"
   }
 
   stages {
@@ -21,9 +19,6 @@ pipeline {
     stage('Stage 1 - Clone CapStone-Final-Project') {
 
       steps {
-
-        //sendStartNotification()
-
         echo "Checking out from github repo..."
         git branch: 'main', url: "${GIT_REPO_URL}"
       }
@@ -85,7 +80,8 @@ pipeline {
       steps {
 
         echo "Creating inventory-service image..."
-        sh "export BUILD_VERSION=${BUILD_TAG}&& docker-compose build"
+        // NOTE: use -E along with sudo to preserve existing environment variables
+        sh "export BUILD_VERSION=${BUILD_TAG}&& sudo -E docker-compose build"
       }
     }
 
@@ -101,19 +97,17 @@ pipeline {
 
         script {
           echo "Uploading docker image to DockerHub"
-          docker.withRegistry('', "${DOCKERHUB_CREDENTIALS}") {
-          
-            //push image
-            sh "export BUILD_VERSION=${BUILD_TAG}&& docker-compose -f ${env.DOCKER_COMPOSE_FILE} push"
+          withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'HUB_USER', passwordVariable: 'HUB_TOKEN')]) {                      
+            sh "sudo docker login -u $HUB_USER -p $HUB_TOKEN"
+            sh "sudo docker image push ${IMAGE_NAME}:${BUILD_TAG}"
             echo "Image pushed."
           }
         }
       }
     }
+  
+    stage('Stage 6 - Deploy the application deployment to the production server') {
 
-    /*stage('Stage 4 - Deploy to tomcat container on AWS EC2...') {
-      
-      // only execute this stage if the previous stages are successful.
       when {
         expression {
           currentBuild.result == null || currentBuild.result == 'SUCCESS'
@@ -121,15 +115,21 @@ pipeline {
       }
 
       steps {
-	    echo "Deploying war to tomcat container."
-	    
-	    dir('inventory-service/target') {
-	        sshagent(['jenkins-ssh-ec2-user']) {
-				sh "scp inventory-service.war ${EC2_USER}@${EC2_ADDRESS}:/home/${EC2_USER}/apache-tomcat-9.0.46/webapps"
-			}
-	    }
-      } 
-    }*/
+
+        dir('deploy') {
+
+          sshagent(['aws_ubuntu_user']) {
+            sh "scp start.sh ${SSH_COMMAND}:/home/${EC2_USER}"
+            sh "scp shutdown.sh ${SSH_COMMAND}:/home/${EC2_USER}"
+            sh "${SSH_COMMAND} export BUILD_TAG=${BUILD_TAG}"
+            sh "${SSH_COMMAND} cd $HOME"
+            sh "${SSH_COMMAND} chmod +x start.sh shutdown.sh"
+            sh "${SSH_COMMAND} ./start.sh ${BUILD_TAG}"
+            echo "Image deployed."
+          }
+        }
+      }
+    }
 
   }
 
@@ -137,56 +137,12 @@ pipeline {
   
     success {
       echo "Build completed."
-      //sendSuccessNotification()
     }
 
     failure {
       echo "Build failed."
-      //sendFailNotification()
     }
     
   }
 
 }
-
-/*
-   Send out start build event notification thru email
-*/
-def sendStartNotification() {
-
-  emailext( 
-    subject: "STARTED Job: '${env.JOB_NAME} [${env.JOB_NUMBER}]'",
-    body: """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-      <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-    to: '$DEFAULT_RECIPIENTS',
-    recipientProviders: [[$class: 'DevelopersRecipientProvider']] 
-  )
-}
-
-/*
-  Send out fail build event notification thru email
-*/
-def sendFailNotification() {
-
-  emailext (
-    subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-    body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-      <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-    to: '$DEFAULT_RECIPIENTS',
-    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-  )
-}
-
-/*
-  Send out success build event notification thru email
-*/
-def sendSuccessNotification() {
-
-  emailext (
-    subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-    body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-      <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-    to: '$DEFAULT_RECIPIENTS',
-    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
-  )
-} 
