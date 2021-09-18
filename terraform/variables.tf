@@ -107,6 +107,12 @@ variable "sg_ingress_http_jenkins" {
   default     = "8080"
 }
 
+variable "sg_ingress_app_port" {
+  description = "Port used for ingresss rule for the inventory service"
+  type        = string
+  default     = "8081"
+}
+
 variable "sg_ingress_http_jenkins_jnlp" {
   description = "Port used for ingress rule for jenkins slave"
   type        = string
