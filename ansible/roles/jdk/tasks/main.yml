@@ -3,3 +3,11 @@
     name: openjdk-8-jdk
     update_cache: yes
     state: present
+
+- name: Check java version
+  shell: "java -version"
+  register: jdk_version
+
+- name: Display java version
+  debug:
+    var: jdk_version

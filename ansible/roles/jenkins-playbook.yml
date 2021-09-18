@@ -1,7 +1,7 @@
-# Ansible playbook for installing playbook
+# Ansible playbook for installing jenkins
 ---
 - name: Jenkins playbook
-  hosts: masters
+  hosts: tag_Name_master
   become: true
   roles:
     - name: Install jenkins

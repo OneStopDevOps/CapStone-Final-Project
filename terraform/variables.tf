@@ -197,3 +197,69 @@ variable "associate_public_ip_address" {
   type        = bool
   default     = true
 }
+
+# Variables for AWS IAM
+####################################################
+
+variable "iam_role_name" {
+  description = "Define the iam role name"
+  type        = string
+  default     = "cm_role"
+}
+
+variable "iam_role_policy_version" {
+  description = "Define the iam role policy version number"
+  type        = string
+  default     = "2012-10-17"
+}
+
+variable "iam_role_policy_effect" {
+  description = "Define the iam role policy effect property"
+  type        = string
+  default     = "Allow"
+}
+
+variable "iam_role_policy_action" {
+  description = "Define the iam role policy action property"
+  type        = string
+  default     = "sts:AssumeRole"
+}
+
+variable "iam_role_policy_principal_type" {
+  description = "Define the iam role policy principal type"
+  type        = string
+  default     = "Service"
+} 
+
+variable "iam_role_policy_principal_identifier" {
+  description = "Define the iam role policy principal identifier"
+  type        = string
+  default     = "ec2.amazonaws.com"
+}
+
+variable "iam_policy_action" {
+  description = "Define the iam policy action"
+  type        = string
+  default     = "ec2:*"
+}
+
+variable "iam_policy_effect" {
+  description = "Define the iam policy effect property"
+  type        = string
+  default     = "Allow"
+}
+
+variable "iam_instance_profile" {
+  description = "Define the iam instance profile name for EC2"
+  type        = string
+  default     = "cm_profile"
+}
+
+# Variables for EIP
+####################################################
+
+variable "eip_vpc" {
+  description = "Is this EIP ties to VPC"
+  type        = bool
+  default     = true
+}

@@ -28,6 +28,7 @@ resource "aws_instance" "instance" {
   vpc_security_group_ids      = [aws_security_group.jenkins_sg.id]
   subnet_id                   = aws_subnet.subnet.id
   key_name                    = var.key_pair
+  iam_instance_profile        = "${aws_iam_instance_profile.ec2_profile.name}"
   
   root_block_device {
     delete_on_termination = true
@@ -54,6 +55,7 @@ resource "aws_instance" "prod_instance" {
   instance_type               = var.aws_instance_type
   vpc_security_group_ids      = [aws_security_group.sg.id]
   key_name                    = var.key_pair
+  iam_instance_profile        = "${aws_iam_instance_profile.ec2_profile.name}"
   
   root_block_device {
     delete_on_termination = true

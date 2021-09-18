@@ -4,6 +4,9 @@
     name: git-core
     update_cache: yes
     state: present
+
+- name: Check GIT version
+  shell: "git --version"
   register: git_version
 
 - name: Display GIT version

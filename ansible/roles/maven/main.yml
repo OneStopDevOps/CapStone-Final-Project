@@ -1,6 +1,6 @@
 - name: Install latest maven
   get_url:
-    url: "https://dlcdn.apache.org/maven/maven-3/3.8.2/binaries/apache-maven-{{ maven_version }}-bin.zip"
+    url: "https://dlcdn.apache.org/maven/maven-3/{{ maven_version }}/binaries/apache-maven-{{ maven_version }}-bin.zip"
     desk: $HOME
     mode: 0755
 

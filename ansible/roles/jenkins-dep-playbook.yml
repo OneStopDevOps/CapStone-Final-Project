@@ -1,33 +1,25 @@
 # Ansible playbook for installing java
 ---
 - name: Install Java openJDK
-  hosts: "masters, slaves, prods"
+  hosts: "tag_Name_master, tag_Name_slave, tag_Name_prod"
   become: yes
   roles:
     - jdk
 
 - name: Install maven
-  hosts: "masters, slaves"
+  hosts: "tag_Name_master, tag_Name_slave"
   become: yes
   roles:
     - maven
 
 - name: Install git
-  hosts: masters
+  hosts: tag_Name_master
   become: yes
   roles:
     - git
 
 - name: Install docker.io
-  hosts: "masters, slaves, prods"
+  hosts: "tag_Name_master, tag_Name_slave, tag_Name_prod"
   become: yes
   roles:
     - docker
-
-- name: Install pass for docker login
-  hosts: masters
-  become: yes
-  apt:
-    name: pass
-    state: present
-    update_cache: yes

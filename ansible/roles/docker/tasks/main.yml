@@ -1,0 +1,20 @@
+# Install docker
+- name: Install docker io
+  apt:
+    name: docker.io
+    update_cache: yes
+    state: present
+
+- name: Check docker version
+  shell: "docker version"
+  register: docker_version
+
+- name: Display docker version
+  debug:
+    var: docker_version
+
+- name: Install pass for docker login
+  apt:
+    name: pass
+    state: present
+    update_cache: yes

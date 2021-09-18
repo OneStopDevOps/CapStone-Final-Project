@@ -2,8 +2,10 @@
 #    - Python3 should be installed along with Ansible
 ---
 - name: Install pip
-  shell: |
-    sudo apt-get update && sudo apt-get install python3-pip -y
+  apt:
+    name: python3-pip
+    update_cache: yes
+    state: present
 
 - name: Install boto3
   apt:
@@ -12,21 +14,20 @@
     update_cache: yes
 
 # Create inventory directory under /opt/ansible
-
-- name: Create inventory directory under /opt/ansible
-  become: yes
-  file:
-    path: /opt/ansible/inventory
-    recurse: yes
-    state: directory
-    owner: "{{ ec2_user }}"
-    group: "{{ ec2_user }}"
-    mode: 0755
+# - name: Create inventory directory under /opt/ansible
+#  become: yes
+#  file:
+#    path: /opt/ansible/inventory
+#    recurse: yes
+#    state: directory
+#    owner: "{{ ec2_user }}"
+#    group: "{{ ec2_user }}"
+#    mode: 0755
 
 - name: Create an aws_ec2.yml file for retrieving ec2 instance info
   template:
     src: templates/aws_ec2.j2
-    dest: /opt/ansible/inventory/aws_ec2.yml
+    dest: "/home/{{ ec2_user }}/CapStone-Final-Project/ansible/roles/aws_ec2.yml"
     owner: "{{ ec2_user }}"
     group: "{{ ec2_user }}"
     mode: 0755
@@ -37,9 +38,9 @@
   lineinfile:
     path: /etc/ansible/ansible.cfg
     insertafter: '^\[defaults\]'
-    line: "inventory = /opt/ansible/inventory/aws_ec2.yml"
+    line: "inventory = /home/{{ ec2_user }}/CapStone-Final-Project/ansible/roles/aws_ec2.yml"
     firstmatch: yes
-    state: present
+    state: present    
 
 - name: Add enable ec2 plugin in ansible.conf
   become: yes
@@ -52,7 +53,7 @@
     state: present
 
 - name: Search the dynamic-inventory groups
-  shell: "ansible-inventory --graph"
+  shell: "ansible-inventory --graph -i aws_ec2.yml"
   register: di_list
 
 - name: Display the dynamic-inventory groups
