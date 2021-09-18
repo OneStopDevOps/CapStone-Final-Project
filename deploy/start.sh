@@ -1,5 +1,7 @@
+#!/bin/sh
+
 # Deployment script for production 
-DOCKER_IMAGE=onestopdevops/capstone-final-project:${BUILD_TAG}
+DOCKER_IMAGE=onestopdevops/capstone-final-project:${1}
 
 echo "Pulling inventory-service from Docker Hub repo"
 sudo docker pull $DOCKER_IMAGE

@@ -11,6 +11,10 @@ pipeline {
     IMAGE_NAME             = 'onestopdevops/capstone-final-project'
     DOCKER_COMPOSE_FILE    = 'docker-compose.yml'
     DOCKERHUB_CREDENTIALS  = 'onestopdevops-docker-hub-user'
+
+    // jenkins parameterized build isn't working.
+    EC2_USER               = 'ubuntu'
+    EC2_ADDRESS            = 'ec2-54-241-93-58.us-west-1.compute.amazonaws.com' 
     SSH_COMMAND            = "${EC2_USER}@${EC2_ADDRESS}"
   }
 
