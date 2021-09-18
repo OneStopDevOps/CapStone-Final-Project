@@ -11,7 +11,7 @@ pipeline {
     IMAGE_NAME             = 'onestopdevops/capstone-final-project'
     DOCKER_COMPOSE_FILE    = 'docker-compose.yml'
     DOCKERHUB_CREDENTIALS  = 'onestopdevops-docker-hub-user'
-    SSH_COMMAND            = "ssh -X ${EC2_USER}@${EC2_ADDRESS}"
+    SSH_COMMAND            = "${EC2_USER}@${EC2_ADDRESS}"
   }
 
   stages {
@@ -121,10 +121,10 @@ pipeline {
           sshagent(['aws_ubuntu_user']) {
             sh "scp start.sh ${SSH_COMMAND}:/home/${EC2_USER}"
             sh "scp shutdown.sh ${SSH_COMMAND}:/home/${EC2_USER}"
-            sh "${SSH_COMMAND} export BUILD_TAG=${BUILD_TAG}"
-            sh "${SSH_COMMAND} cd $HOME"
-            sh "${SSH_COMMAND} chmod +x start.sh shutdown.sh"
-            sh "${SSH_COMMAND} ./start.sh ${BUILD_TAG}"
+            sh "ssh -X ${SSH_COMMAND} export BUILD_TAG=${BUILD_TAG}"
+            sh "ssh -X ${SSH_COMMAND} cd /home/${EC2_USER}"
+            sh "ssh -X ${SSH_COMMAND} chmod +x start.sh shutdown.sh"
+            sh "ssh -X ${SSH_COMMAND} ./start.sh ${BUILD_TAG}"
             echo "Image deployed."
           }
         }

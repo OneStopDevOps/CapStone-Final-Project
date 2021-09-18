@@ -18,3 +18,9 @@
     name: pass
     state: present
     update_cache: yes
+
+- name: Install docker compose
+  apt:
+    name: docker-compose
+    update_cache: yes
+    state: present
